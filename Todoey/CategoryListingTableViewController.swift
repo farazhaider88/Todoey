@@ -8,17 +8,18 @@
 
 import UIKit
 import CoreData
-
+import  RealmSwift
 class CategoryListingTableViewController: UITableViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var categoryArray = [Category]()
+    let realm = try! Realm()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         print(documentsPath)
-        loadCategories()
+//        loadCategories()
     }
     
     override func didReceiveMemoryWarning() {
@@ -56,10 +57,10 @@ class CategoryListingTableViewController: UITableViewController {
         let alert = UIAlertController(title: "Category", message: "", preferredStyle: .alert)
         let addCategoryButton = UIAlertAction(title: "Add Category", style: .default) { (addAction) in
             print(textField.text!)
-            let category = Category(context: self.context)
-            category.name = textField.text
+            let category = Category()
+            category.name = textField.text!
             self.categoryArray.append(category)
-            self.saveCategories()
+            self.saveCategories(category: category)
         }
         alert.addTextField { (addTextField) in
             addTextField.placeholder = "Category"
@@ -69,21 +70,23 @@ class CategoryListingTableViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    func loadCategories(with request:NSFetchRequest<Category> =  Category.fetchRequest()){
-        do {
-            categoryArray =  try context.fetch(request)
-        }
-        catch
-        {
-            print("error in fetching data ---- \(error)")
-        }
-        
-        tableView.reloadData()
-    }
+//    func loadCategories(with request:NSFetchRequest<Category> =  Category.fetchRequest()){
+//        do {
+//            categoryArray =  try context.fetch(request)
+//        }
+//        catch
+//        {
+//            print("error in fetching data ---- \(error)")
+//        }
+//
+//        tableView.reloadData()
+//    }
     
-    func saveCategories(){
+    func saveCategories(category:Category){
         do {
-            try context.save()
+            try realm.write {
+             realm.add(category)
+            }
         } catch {
             print("error in saving categories \(error)")
         }
@@ -92,25 +95,26 @@ class CategoryListingTableViewController: UITableViewController {
     
 }
 
-extension CategoryListingTableViewController : UISearchBarDelegate {
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        request.predicate = NSPredicate(format: "name CONTAINS [cd] %@", searchBar.text!)
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        
-        loadCategories(with: request)
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if (searchBar.text?.count)! == 0
-        {
-            loadCategories()
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-            
-        }
-    }
-}
+//extension CategoryListingTableViewController : UISearchBarDelegate {
+//
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//
+//        let request : NSFetchRequest<Category> = Category.fetchRequest()
+//        request.predicate = NSPredicate(format: "name CONTAINS [cd] %@", searchBar.text!)
+//        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+//
+//        loadCategories(with: request)
+//    }
+//
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if (searchBar.text?.count)! == 0
+//        {
+//            loadCategories()
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//
+//        }
+//    }
+//}
+

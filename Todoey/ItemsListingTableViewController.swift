@@ -15,7 +15,7 @@ class ItemsListingTableViewController: UITableViewController {
     var itemArray = [Item]()
     var selectedCategory : Category? {
         didSet{
-            loadItems()
+            //loadItems()
         }
     }
     override func viewDidLoad() {
@@ -49,11 +49,11 @@ class ItemsListingTableViewController: UITableViewController {
         let alert = UIAlertController(title: "Items", message: "", preferredStyle: .alert)
         let addCategoryButton = UIAlertAction(title: "Add Items", style: .default) { (addAction) in
             print(textField.text!)
-            let item = Item(context: self.context)
-            item.title = textField.text
-            item.done = false
-            item.parentCategory = self.selectedCategory
-            self.itemArray.append(item)
+//            let item = Item()
+//            item.title = textField.text!
+//            item.done = false
+//            item.parentCategory = self.selectedCategory
+//            self.itemArray.append(item)
             self.saveItems()
         }
         alert.addTextField { (addTextField) in
@@ -64,27 +64,27 @@ class ItemsListingTableViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    func loadItems(with request:NSFetchRequest<Item> =  Item.fetchRequest(), predicate : NSPredicate? = nil){
-        
-        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-        
-        if let additionalPredicate = predicate
-        {
-            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalPredicate])
-        }else {
-            request.predicate = categoryPredicate
-        }
-        
-        do {
-            itemArray =  try context.fetch(request)
-        }
-        catch
-        {
-            print("error in fetching data ---- \(error)")
-        }
-        
-        tableView.reloadData()
-    }
+//    func loadItems(with request:NSFetchRequest<Item> =  Item.fetchRequest(), predicate : NSPredicate? = nil){
+//
+//        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+//
+//        if let additionalPredicate = predicate
+//        {
+//            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalPredicate])
+//        }else {
+//            request.predicate = categoryPredicate
+//        }
+//
+//        do {
+//            itemArray =  try context.fetch(request)
+//        }
+//        catch
+//        {
+//            print("error in fetching data ---- \(error)")
+//        }
+//
+//        tableView.reloadData()
+//    }
     
     func saveItems(){
         do {
@@ -97,25 +97,26 @@ class ItemsListingTableViewController: UITableViewController {
     
 }
 
-extension ItemsListingTableViewController : UISearchBarDelegate {
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
-        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        loadItems(with: request, predicate: predicate)
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if (searchBar.text?.count)! == 0
-        {
-            loadItems()
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-            
-        }
-    }
-}
+//extension ItemsListingTableViewController : UISearchBarDelegate {
+//
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//
+//        let request : NSFetchRequest<Item> = Item.fetchRequest()
+//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+//
+//        loadItems(with: request, predicate: predicate)
+//    }
+//
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if (searchBar.text?.count)! == 0
+//        {
+//            loadItems()
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//
+//        }
+//    }
+//}
+
