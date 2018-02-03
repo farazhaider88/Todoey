@@ -7,15 +7,15 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class ItemsListingTableViewController: UITableViewController {
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    var itemArray = [Item]()
+    let realm = try! Realm()
+    var todoItems : Results<Item>?
     var selectedCategory : Category? {
         didSet{
-            //loadItems()
+            loadItems()
         }
     }
     override func viewDidLoad() {
@@ -30,18 +30,35 @@ class ItemsListingTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath)
-        let items = itemArray[indexPath.row]
-        cell.textLabel?.text = items.title
+        if let items = todoItems?[indexPath.row]{
+            cell.textLabel?.text = items.title
+            cell.accessoryType = items.done ? .checkmark : .none
+        }else
+        {
+            cell.textLabel?.text = "No Items added"
+        }
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let item = todoItems?[indexPath.row] {
+            do{
+                try realm.write {
+                    item.done = !item.done
+                }
+            }catch
+            {
+                print("Error saving done status, \(error)")
+            }
+        }
+    tableView.reloadData()
         
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     @IBAction func addCategoryButtonClicked(_ sender: Any) {
@@ -49,12 +66,24 @@ class ItemsListingTableViewController: UITableViewController {
         let alert = UIAlertController(title: "Items", message: "", preferredStyle: .alert)
         let addCategoryButton = UIAlertAction(title: "Add Items", style: .default) { (addAction) in
             print(textField.text!)
-//            let item = Item()
-//            item.title = textField.text!
-//            item.done = false
-//            item.parentCategory = self.selectedCategory
-//            self.itemArray.append(item)
-            self.saveItems()
+            
+            if let currentCategory = self.selectedCategory
+            {
+                do{
+                    try self.realm.write {
+                        let newItem = Item ()
+                        newItem.title = textField.text!
+                        newItem.dateCreated = Date()
+                        currentCategory.items.append(newItem)
+                    }
+                }
+                catch
+                {
+                    print("Error saving in Items \(error)")
+                }
+            }
+            
+            self.tableView.reloadData()
         }
         alert.addTextField { (addTextField) in
             addTextField.placeholder = "Items"
@@ -64,59 +93,29 @@ class ItemsListingTableViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-//    func loadItems(with request:NSFetchRequest<Item> =  Item.fetchRequest(), predicate : NSPredicate? = nil){
-//
-//        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-//
-//        if let additionalPredicate = predicate
-//        {
-//            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalPredicate])
-//        }else {
-//            request.predicate = categoryPredicate
-//        }
-//
-//        do {
-//            itemArray =  try context.fetch(request)
-//        }
-//        catch
-//        {
-//            print("error in fetching data ---- \(error)")
-//        }
-//
-//        tableView.reloadData()
-//    }
-    
-    func saveItems(){
-        do {
-            try context.save()
-        } catch {
-            print("error in saving categories \(error)")
-        }
+    func loadItems(){
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
     
 }
 
-//extension ItemsListingTableViewController : UISearchBarDelegate {
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        loadItems(with: request, predicate: predicate)
-//    }
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if (searchBar.text?.count)! == 0
-//        {
-//            loadItems()
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//
-//        }
-//    }
-//}
+extension ItemsListingTableViewController : UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        tableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if (searchBar.text?.count)! == 0
+        {
+            loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+
+        }
+    }
+}
 
