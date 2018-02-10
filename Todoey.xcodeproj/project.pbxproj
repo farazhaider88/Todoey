@@ -16,6 +16,7 @@
 		D092149320126D8B00332C0D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D092149120126D8B00332C0D /* Main.storyboard */; };
 		D092149520126D8B00332C0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D092149420126D8B00332C0D /* Assets.xcassets */; };
 		D092149820126D8B00332C0D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D092149620126D8B00332C0D /* LaunchScreen.storyboard */; };
+		D0DE3505202DFDA8000B15FA /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0DE3504202DFDA8000B15FA /* SwipeTableViewController.swift */; };
 		D21F16AA12E19DE7EE970651 /* Pods_Todoey.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53021B4928F19B86C821AA53 /* Pods_Todoey.framework */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,7 @@
 		D092149420126D8B00332C0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D092149720126D8B00332C0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D092149920126D8B00332C0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0DE3504202DFDA8000B15FA /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				D092148D20126D8B00332C0D /* AppDelegate.swift */,
+				D0DE3504202DFDA8000B15FA /* SwipeTableViewController.swift */,
 				59EF59422021985900C829A1 /* CategoryListingTableViewController.swift */,
 				59EF59432021985900C829A1 /* ItemsListingTableViewController.swift */,
 				D092149120126D8B00332C0D /* Main.storyboard */,
@@ -192,9 +195,18 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Todoey/Pods-Todoey-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/ChameleonFramework/ChameleonFramework.framework",
+				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
+				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SwipeCellKit/SwipeCellKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ChameleonFramework.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwipeCellKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -207,13 +219,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Todoey-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -226,6 +241,7 @@
 				594278902022FFD800E18B87 /* Item.swift in Sources */,
 				D092148E20126D8B00332C0D /* AppDelegate.swift in Sources */,
 				5942788C2022FB3D00E18B87 /* CoreDataTesting.xcdatamodeld in Sources */,
+				D0DE3505202DFDA8000B15FA /* SwipeTableViewController.swift in Sources */,
 				59EF59442021985900C829A1 /* CategoryListingTableViewController.swift in Sources */,
 				59EF59452021985900C829A1 /* ItemsListingTableViewController.swift in Sources */,
 				594278922022FFE400E18B87 /* Category.swift in Sources */,

@@ -8,8 +8,10 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class ItemsListingTableViewController: UITableViewController {
+class ItemsListingTableViewController: SwipeTableViewController {
+    @IBOutlet weak var searchBar: UISearchBar!
     
     let realm = try! Realm()
     var todoItems : Results<Item>?
@@ -22,6 +24,36 @@ class ItemsListingTableViewController: UITableViewController {
         super.viewDidLoad()
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         print(documentsPath)
+        tableView.separatorStyle = .none
+        tableView.rowHeight = 80
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        title = selectedCategory?.name
+        guard let hexColor = selectedCategory?.backgroundColor  else{ fatalError()}
+        updateNavBar(withHexCode: hexColor)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateNavBar(withHexCode: "1D9BF6")
+    }
+    
+    //Mark: - NavBar setup Methods
+  
+    func updateNavBar(withHexCode colorHexCode:String){
+        
+        guard let navBar = navigationController?.navigationBar else{
+            fatalError("navigationController doesnot exist")
+        }
+        
+        guard let navBarColor =  UIColor(hexString: colorHexCode) else{ fatalError() }
+        navBar.barTintColor = navBarColor
+        searchBar.barTintColor = navBarColor
+        navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+        navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -34,9 +66,17 @@ class ItemsListingTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
         if let items = todoItems?[indexPath.row]{
             cell.textLabel?.text = items.title
+            
+            if let color = UIColor(hexString: selectedCategory!.backgroundColor)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat((todoItems!.count)))
+            {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+            
             cell.accessoryType = items.done ? .checkmark : .none
         }else
         {
@@ -56,7 +96,7 @@ class ItemsListingTableViewController: UITableViewController {
                 print("Error saving done status, \(error)")
             }
         }
-    tableView.reloadData()
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -97,16 +137,30 @@ class ItemsListingTableViewController: UITableViewController {
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
+    //delete
+    override func updateModel(at indexPath:IndexPath){
+        
+        if let itemListing = self.todoItems?[indexPath.row]{
+            do{
+                try self.realm.write {
+                    self.realm.delete(itemListing)
+                }
+            }catch
+            {
+                print("error deleting \(itemListing)")
+            }
+        }
+    }
     
 }
 
 extension ItemsListingTableViewController : UISearchBarDelegate {
-
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
         tableView.reloadData()
     }
-
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if (searchBar.text?.count)! == 0
         {
@@ -114,7 +168,7 @@ extension ItemsListingTableViewController : UISearchBarDelegate {
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
             }
-
+            
         }
     }
 }

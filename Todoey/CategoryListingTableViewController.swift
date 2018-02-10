@@ -7,9 +7,11 @@
 //
 
 import UIKit
-import  RealmSwift
-class CategoryListingTableViewController: UITableViewController {
+import RealmSwift
+import ChameleonFramework
 
+class CategoryListingTableViewController: SwipeTableViewController {
+    
     var categoryArray : Results<Category>?
     let realm = try! Realm()
     
@@ -17,7 +19,9 @@ class CategoryListingTableViewController: UITableViewController {
         super.viewDidLoad()
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         print(documentsPath)
-       loadCategories()
+        tableView.rowHeight = 80
+        tableView.separatorStyle = .none
+        loadCategories()
     }
     
     override func didReceiveMemoryWarning() {
@@ -29,9 +33,21 @@ class CategoryListingTableViewController: UITableViewController {
         return categoryArray?.count ?? 1
     }
     
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
+        if let category = categoryArray?[indexPath.row]{
+            
+            guard let hexColor = UIColor (hexString: category.backgroundColor) else {fatalError()}
+            cell.textLabel?.text = category.name
+            cell.backgroundColor = hexColor
+            cell.textLabel?.textColor = ContrastColorOf(hexColor, returnFlat: true)
+        }
+      
         return cell
     }
     
@@ -56,6 +72,7 @@ class CategoryListingTableViewController: UITableViewController {
             print(textField.text!)
             let category = Category()
             category.name = textField.text!
+            category.backgroundColor = UIColor.randomFlat.hexValue()
             self.saveCategories(category: category)
         }
         alert.addTextField { (addTextField) in
@@ -74,7 +91,7 @@ class CategoryListingTableViewController: UITableViewController {
     func saveCategories(category:Category){
         do {
             try realm.write {
-             realm.add(category)
+                realm.add(category)
             }
         } catch {
             print("error in saving categories \(error)")
@@ -82,7 +99,22 @@ class CategoryListingTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    //delete action
+    override func updateModel(at indexPath: IndexPath) {
+        
+        if let categoryDeletion = self.categoryArray?[indexPath.row]{
+            do{
+                try self.realm.write {
+                    self.realm.delete(categoryDeletion)
+                }
+            }catch
+            {
+                print("error deleting \(categoryDeletion)")
+            }
+        }
+    }
 }
+
 
 //extension CategoryListingTableViewController : UISearchBarDelegate {
 //
